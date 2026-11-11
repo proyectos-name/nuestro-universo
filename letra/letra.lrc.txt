@@ -1,36 +1,39 @@
-Nunca digas que te vas sin querer regresar
-Cuando de ti me enamoré
-Cuando cien años ya te amé
-Llévame siempre al recordar
-Viéndote bailar en aquel cerro Coronel
-Y ya mil veces te besé
-Y no lo niego, me clavé
-Llévame siempre al recordar
-Te he visto en frente sonriente, valiente
-Te quiero tanto
-Vestido blanco, en el medio tu alma
-Te quiero tanto
-Me duele fuerte pensar que algún día
-Te encuentre ausente
-Me duele fuerte pensar que algún día
-Te encuentre ausente
-Te siento al cantar
-Y al escuchar cualquier canción bonita que hable del amor
-De lo que siento ayer y hoy
-Siempre te llevo al despertar
-Te vi a los ojos bien
-Sentí cariño fiel
-Si me rompiera aquí
-Esperaría por ti
-Te he visto en frente sonriente, valiente
-Te quiero tanto
-Vestido blanco, en el medio tu alma
-Te quiero tanto
-Me duele fuerte pensar que algún día
-Te encuentre ausente
-Me duele fuerte pensar que algún día
-Te encuentre ausente
-Te vi a los ojos bien
-Sentí cariño fiel
-Si me rompiera aquí
-Esperaría por ti
+[ti:Te quiero tanto]
+[ar:Kevin Kaarl]
+
+[00:04.10] Nunca digas que te vas sin querer regresar
+[00:08.03] Cuando de ti me enamoré
+[00:10.76] Cuando cien años ya te amé
+[00:14.68] Llévame siempre al recordar
+[00:19.40] Viéndote bailar en aquel cerro Coronel
+[00:23.66] Y ya mil veces te besé
+[00:26.32] Y no lo niego, me clavé
+[00:30.13] Llévame siempre al recordar
+[00:35.69] Te he visto en frente sonriente, valiente
+[00:40.68] Te quiero tanto
+[00:46.29] Vestido blanco, en el medio tu alma
+[00:51.23] Te quiero tanto
+[00:56.39] Me duele fuerte pensar que algún día
+[01:01.53] Te encuentre ausente
+[01:06.71] Me duele fuerte pensar que algún día
+[01:12.13] Te encuentre ausente
+[01:18.73] Te siento al cantar
+[01:20.51] Y al escuchar cualquier canción bonita que hable del amor
+[01:25.56] De lo que siento ayer y hoy
+[01:29.28] Siempre te llevo al despertar
+[01:36.93] Te vi a los ojos bien
+[01:44.49] Sentí cariño fiel
+[01:52.34] Si me rompiera aquí
+[01:59.82] Esperaría por ti
+[02:06.28] Te he visto en frente sonriente, valiente
+[02:11.22] Te quiero tanto
+[02:16.23] Vestido blanco, en el medio tu alma
+[02:21.77] Te quiero tanto
+[02:26.66] Me duele fuerte pensar que algún día
+[02:31.85] Te encuentre ausente
+[02:37.05] Me duele fuerte pensar que algún día
+[02:42.48] Te encuentre ausente
+[03:22.01] Te vi a los ojos bien
+[03:27.83] Sentí cariño fiel
+[03:35.54] Si me rompiera aquí
+[03:43.46] Esperaría por ti

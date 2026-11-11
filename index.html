@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#050713" />
+    <title>Nuestro Universo — Mi Pandita</title>
+    <link rel="stylesheet" href="css/animations.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <!-- Fondo espacial global con estrellas y nebulosas CSS -->
+    <div class="cosmos-backdrop" aria-hidden="true">
+      <div class="cosmos-nebula cosmos-nebula--blue"></div>
+      <div class="cosmos-nebula cosmos-nebula--purple"></div>
+      <div class="cosmos-nebula cosmos-nebula--crimson"></div>
+      <div class="cosmos-stars cosmos-stars--far"></div>
+      <div class="cosmos-stars cosmos-stars--near"></div>
+    </div>
+
+    <main class="app-shell">
+      <!-- ETAPA 1: LOGIN -->
+      <section
+        id="stage-login"
+        class="stage stage--login is-active"
+        aria-labelledby="login-title"
+        aria-hidden="false"
+      >
+        <div id="login-bg-layer" class="login-bg-layer" aria-hidden="true"></div>
+        <div class="login-bg-overlay" aria-hidden="true"></div>
+
+        <div class="stage-container stage-container--narrow">
+          <div id="login-card" class="glass-card login-card">
+            <div class="avengers-showcase">
+              <div class="avengers-glow" aria-hidden="true"></div>
+              <img
+                id="avengers-hero-img"
+                class="avengers-hero-img"
+                alt="Equipo Avengers"
+                decoding="async"
+              />
+            </div>
+
+            <span id="login-badge" class="cosmic-badge">PORTAL DEL MULTIVERSO</span>
+            <h1 id="login-title" class="hero-title">Nuestro Universo</h1>
+            <p id="login-subtitle" class="hero-subtitle">
+              Ingresa nuestra fecha especial para abrir el portal hacia nuestra historia.
+            </p>
+
+            <form id="login-form" class="login-form" novalidate>
+              <label for="password-input" class="sr-only">
+                Fecha especial (contraseña)
+              </label>
+              <div class="input-group">
+                <input
+                  id="password-input"
+                  class="cosmic-input"
+                  type="password"
+                  inputmode="decimal"
+                  autocomplete="off"
+                  spellcheck="false"
+                  placeholder="DD.MM.AAAA"
+                  aria-describedby="login-error"
+                />
+                <button
+                  id="toggle-password-btn"
+                  class="input-toggle-btn"
+                  type="button"
+                  aria-label="Mostrar fecha"
+                  aria-pressed="false"
+                >
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+
+              <p id="login-error" class="form-error" role="alert" hidden></p>
+
+              <button id="login-submit-btn" class="btn-primary" type="submit">
+                Abrir portal
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ETAPA 2: BIENVENIDA -->
+      <section
+        id="stage-welcome"
+        class="stage stage--welcome"
+        aria-labelledby="welcome-title"
+        aria-hidden="true"
+      >
+        <div class="stage-container stage-container--narrow">
+          <div class="glass-card welcome-card">
+            <div class="portal-emblem" aria-hidden="true">
+              <span class="portal-ring portal-ring--outer"></span>
+              <span class="portal-ring portal-ring--inner"></span>
+              <span class="portal-core">✦</span>
+            </div>
+
+            <span id="welcome-badge" class="cosmic-badge">CONEXIÓN ESTABLECIDA</span>
+            <h2 id="welcome-title" class="hero-title hero-title--lg">
+              Bienvenida a nuestro universo
+            </h2>
+            <p id="welcome-message" class="welcome-copy">
+              Entre infinitas galaxias y líneas temporales, mi lugar favorito siempre será el mismo: a tu lado.
+            </p>
+
+            <button id="welcome-continue-btn" class="btn-primary" type="button">
+              Escuchar nuestra canción
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ETAPA 3: REPRODUCTOR MUSICAL + LETRA SINCRONIZADA -->
+      <section
+        id="stage-music"
+        class="stage stage--music"
+        aria-labelledby="song-title"
+        aria-hidden="true"
+      >
+        <div class="stage-container stage-container--wide music-layout">
+          <!-- Panel del Reproductor -->
+          <div class="glass-card player-card">
+            <div class="player-header">
+              <div id="cover-frame" class="cover-frame">
+                <div class="cover-aura" aria-hidden="true"></div>
+                <img
+                  id="song-cover"
+                  class="song-cover"
+                  alt="Portada de nuestra canción"
+                  decoding="async"
+                />
+              </div>
+
+              <div class="track-meta">
+                <span class="cosmic-badge cosmic-badge--soft">BANDA SONORA</span>
+                <h2 id="song-title" class="track-title">Nuestra Canción</h2>
+                <p id="song-artist" class="track-artist">Para Mi Pandita</p>
+              </div>
+            </div>
+
+            <div class="player-controls-wrap">
+              <div class="progress-block">
+                <label for="progress-bar" class="sr-only">Progreso de la canción</label>
+                <input
+                  id="progress-bar"
+                  class="progress-slider"
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  value="0"
+                />
+                <div class="time-row">
+                  <span id="current-time">0:00</span>
+                  <span id="total-duration">0:00</span>
+                </div>
+              </div>
+
+              <div class="action-row">
+                <button
+                  id="play-pause-btn"
+                  class="play-btn"
+                  type="button"
+                  aria-label="Reproducir canción"
+                >
+                  <svg id="icon-play" viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true">
+                    <path d="M8 5.5v13l10.5-6.5L8 5.5Z" />
+                  </svg>
+                  <svg id="icon-pause" viewBox="0 0 24 24" width="26" height="26" fill="currentColor" hidden aria-hidden="true">
+                    <rect x="6.5" y="5" width="4" height="14" rx="1.2" />
+                    <rect x="13.5" y="5" width="4" height="14" rx="1.2" />
+                  </svg>
+                </button>
+
+                <button id="to-finale-btn" class="btn-secondary btn-compact" type="button">
+                  Ir al mensaje final
+                </button>
+              </div>
+
+              <p id="audio-error" class="form-error" role="alert" hidden></p>
+            </div>
+
+            <audio id="audio-element" preload="metadata"></audio>
+          </div>
+
+          <!-- Panel de Letras Sincronizadas -->
+          <div class="glass-card lyrics-card" aria-label="Letra sincronizada">
+            <div class="lyrics-card-header">
+              <span class="lyrics-pill">LETRA EN VIVO</span>
+              <span class="lyrics-hint">Toca un verso para saltar</span>
+            </div>
+
+            <div id="lyrics-viewport" class="lyrics-viewport">
+              <div id="lyrics-status" class="lyrics-status"></div>
+              <div id="lyrics-list" class="lyrics-list" hidden></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ETAPA 4: SECCIÓN FINAL ROMÁNTICA CON PANDA -->
+      <section
+        id="stage-finale"
+        class="stage stage--finale"
+        aria-labelledby="finale-title"
+        aria-hidden="true"
+      >
+        <div class="stage-container stage-container--medium">
+          <div class="glass-card finale-card">
+            <div class="panda-showcase">
+              <div class="panda-aura" aria-hidden="true"></div>
+              <img
+                id="panda-hero-img"
+                class="panda-hero-img"
+                alt="Panda tierno con corazón"
+                decoding="async"
+              />
+            </div>
+
+            <span id="finale-badge" class="cosmic-badge cosmic-badge--rose">
+              CAPÍTULO FINAL
+            </span>
+            <h2 id="finale-title" class="hero-title hero-title--lg">Mi pandita 🐼</h2>
+            <p id="finale-dedication" class="finale-dedication">
+              “Mi pandita, en este universo y en cualquier otro, siempre te elegiría a ti.”
+            </p>
+
+            <article class="letter-box" aria-label="Carta romántica">
+              <div id="finale-letter-body" class="letter-body"></div>
+              <p id="finale-signature" class="letter-signature"></p>
+            </article>
+
+            <div class="finale-actions">
+              <button id="replay-song-btn" class="btn-primary" type="button">
+                Volver a escuchar la canción
+              </button>
+              <button id="restart-app-btn" class="btn-secondary" type="button">
+                Reiniciar experiencia
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="js/app.js"></script>
+  </body>
+</html>

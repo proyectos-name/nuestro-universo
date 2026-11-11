@@ -1,0 +1,966 @@
+:root {
+  --bg-deep: #04060f;
+  --bg-indigo: #0c1230;
+  --bg-purple: #1b1038;
+  --accent-cyan: #67d4ff;
+  --accent-violet: #9d7bff;
+  --accent-rose: #ff5e8a;
+  --accent-crimson: #d9385a;
+  --text-primary: #f5f7ff;
+  --text-secondary: #bcc5e3;
+  --text-muted: #8490b8;
+  --glass-bg: rgba(12, 17, 40, 0.66);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-shadow: 0 24px 60px rgba(2, 4, 14, 0.72);
+  --font-sans: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont,
+    'Helvetica Neue', Arial, sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+  --radius-card: 24px;
+  --radius-pill: 999px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  min-height: 100dvh;
+  background-color: var(--bg-deep);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button,
+input {
+  font: inherit;
+  color: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* =========================================================
+   FONDO ESPACIAL / GALAXIA CSS
+   ========================================================= */
+.cosmos-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(circle at 20% 15%, #121a45 0%, #060918 52%, #03040b 100%);
+}
+
+.cosmos-nebula {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(75px);
+  opacity: 0.42;
+  animation: nebulaFloat 16s ease-in-out infinite;
+}
+
+.cosmos-nebula--blue {
+  width: 65vw;
+  height: 65vw;
+  max-width: 560px;
+  max-height: 560px;
+  top: -15%;
+  left: -18%;
+  background: radial-gradient(circle, rgba(58, 130, 255, 0.52), transparent 70%);
+}
+
+.cosmos-nebula--purple {
+  width: 70vw;
+  height: 70vw;
+  max-width: 620px;
+  max-height: 620px;
+  bottom: -20%;
+  right: -18%;
+  background: radial-gradient(circle, rgba(145, 86, 255, 0.48), transparent 70%);
+  animation-delay: -5s;
+}
+
+.cosmos-nebula--crimson {
+  width: 52vw;
+  height: 52vw;
+  max-width: 440px;
+  max-height: 440px;
+  top: 38%;
+  left: 55%;
+  background: radial-gradient(circle, rgba(226, 62, 108, 0.3), transparent 72%);
+  animation-delay: -9s;
+}
+
+.cosmos-stars {
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat;
+}
+
+.cosmos-stars--far {
+  background-image:
+    radial-gradient(1px 1px at 22px 38px, rgba(255, 255, 255, 0.75), transparent),
+    radial-gradient(1.2px 1.2px at 94px 112px, rgba(180, 220, 255, 0.8), transparent),
+    radial-gradient(1px 1px at 165px 46px, rgba(255, 255, 255, 0.55), transparent),
+    radial-gradient(1.4px 1.4px at 210px 175px, rgba(235, 195, 255, 0.7), transparent),
+    radial-gradient(1px 1px at 48px 188px, rgba(255, 255, 255, 0.65), transparent);
+  background-size: 240px 220px;
+  animation: starTwinkle 7s ease-in-out infinite;
+}
+
+.cosmos-stars--near {
+  background-image:
+    radial-gradient(1.6px 1.6px at 35px 60px, rgba(255, 255, 255, 0.9), transparent),
+    radial-gradient(1.8px 1.8px at 145px 95px, rgba(125, 215, 255, 0.85), transparent),
+    radial-gradient(1.5px 1.5px at 230px 140px, rgba(255, 175, 210, 0.8), transparent),
+    radial-gradient(2px 2px at 110px 235px, rgba(255, 255, 255, 0.75), transparent);
+  background-size: 290px 280px;
+  animation: starTwinkle 11s ease-in-out infinite reverse;
+}
+
+/* =========================================================
+   CONTENEDOR DE ETAPAS
+   ========================================================= */
+.app-shell {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 100dvh;
+}
+
+.stage {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: max(16px, env(safe-area-inset-top)) 16px
+    max(20px, env(safe-area-inset-bottom));
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: scale(0.985);
+  transition: opacity 0.55s ease, transform 0.55s ease, visibility 0.55s ease;
+}
+
+.stage.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: scale(1);
+}
+
+.stage-container {
+  width: 100%;
+  margin: auto;
+}
+
+.stage-container--narrow {
+  max-width: 440px;
+}
+
+.stage-container--medium {
+  max-width: 620px;
+}
+
+.stage-container--wide {
+  max-width: 1040px;
+}
+
+/* =========================================================
+   GLASSMORPHISM & COMPONENTES BASE
+   ========================================================= */
+.glass-card {
+  position: relative;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.cosmic-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 13px;
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-cyan);
+  background: rgba(103, 212, 255, 0.1);
+  border: 1px solid rgba(103, 212, 255, 0.28);
+}
+
+.cosmic-badge--soft {
+  color: #d7cbff;
+  background: rgba(157, 123, 255, 0.14);
+  border-color: rgba(157, 123, 255, 0.3);
+}
+
+.cosmic-badge--rose {
+  color: #ffb8cd;
+  background: rgba(255, 94, 138, 0.14);
+  border-color: rgba(255, 94, 138, 0.34);
+}
+
+.hero-title {
+  margin: 12px 0 8px;
+  font-size: clamp(1.65rem, 5.8vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: 0.03em;
+  line-height: 1.15;
+  background: linear-gradient(135deg, #ffffff 10%, #cbd9ff 55%, #f5b6d2 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-title--lg {
+  font-size: clamp(1.8rem, 6.2vw, 2.55rem);
+}
+
+.hero-subtitle {
+  margin: 0 auto;
+  max-width: 34ch;
+  font-size: 0.94rem;
+  color: var(--text-secondary);
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 24px;
+  border-radius: var(--radius-pill);
+  font-size: 0.96rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease,
+    border-color 0.22s ease;
+}
+
+.btn-primary {
+  width: 100%;
+  color: #ffffff;
+  background: linear-gradient(135deg, #4b6bff 0%, #8a52ff 52%, #e04274 100%);
+  box-shadow: 0 10px 28px rgba(124, 82, 255, 0.42),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 34px rgba(145, 92, 255, 0.56),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-secondary {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.13);
+  border-color: rgba(255, 255, 255, 0.34);
+}
+
+.btn-compact {
+  min-height: 44px;
+  padding: 10px 18px;
+  font-size: 0.88rem;
+}
+
+/* =========================================================
+   ETAPA 1: LOGIN
+   ========================================================= */
+.stage--login {
+  background: transparent;
+}
+
+.login-bg-layer {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  opacity: 0;
+  transform: scale(1.03);
+  transition: opacity 0.8s ease;
+}
+
+.login-bg-layer.bg-loaded {
+  opacity: 0.62;
+}
+
+.login-bg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(circle at 50% 28%, rgba(88, 62, 185, 0.24), transparent 62%),
+    linear-gradient(180deg, rgba(4, 6, 15, 0.56) 0%, rgba(4, 6, 15, 0.9) 100%);
+}
+
+.login-card {
+  padding: 24px 22px 26px;
+  text-align: center;
+}
+
+.login-card.shake {
+  animation: cardShake 0.44s ease;
+}
+
+.avengers-showcase {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  padding: 8px 10px;
+  border-radius: 18px;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(103, 212, 255, 0.14) 0%,
+    rgba(157, 123, 255, 0.08) 48%,
+    transparent 78%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.avengers-glow {
+  position: absolute;
+  inset: 12% 18%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(114, 156, 255, 0.35), transparent 70%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+.avengers-hero-img {
+  position: relative;
+  width: 100%;
+  max-height: 150px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 22px rgba(4, 8, 25, 0.85));
+}
+
+.login-form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.input-group {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.cosmic-input {
+  width: 100%;
+  min-height: 50px;
+  padding: 12px 48px 12px 18px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(5, 8, 22, 0.72);
+  color: var(--text-primary);
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.cosmic-input::placeholder {
+  color: var(--text-muted);
+  letter-spacing: 0.12em;
+}
+
+.cosmic-input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px rgba(103, 212, 255, 0.18);
+}
+
+.cosmic-input.is-invalid {
+  border-color: var(--accent-rose);
+  box-shadow: 0 0 0 3px rgba(255, 94, 138, 0.2);
+}
+
+.input-toggle-btn {
+  position: absolute;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.input-toggle-btn:hover,
+.input-toggle-btn.is-visible {
+  color: var(--accent-cyan);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.form-error {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  color: #ffd5e0;
+  background: rgba(217, 56, 90, 0.18);
+  border: 1px solid rgba(255, 94, 138, 0.36);
+}
+
+/* =========================================================
+   ETAPA 2: BIENVENIDA
+   ========================================================= */
+.welcome-card {
+  padding: 36px 24px 32px;
+  text-align: center;
+}
+
+.portal-emblem {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  margin: 0 auto 20px;
+  display: grid;
+  place-items: center;
+}
+
+.portal-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid transparent;
+}
+
+.portal-ring--outer {
+  border-top-color: var(--accent-cyan);
+  border-right-color: rgba(157, 123, 255, 0.7);
+  box-shadow: 0 0 24px rgba(103, 212, 255, 0.25);
+  animation: portalSpin 9s linear infinite;
+}
+
+.portal-ring--inner {
+  inset: 12px;
+  border-bottom-color: var(--accent-rose);
+  border-left-color: rgba(157, 123, 255, 0.8);
+  animation: portalSpinReverse 6s linear infinite;
+}
+
+.portal-core {
+  font-size: 1.65rem;
+  color: #ffffff;
+  text-shadow: 0 0 18px rgba(103, 212, 255, 0.85),
+    0 0 32px rgba(255, 94, 138, 0.55);
+}
+
+.welcome-copy {
+  margin: 14px auto 26px;
+  max-width: 38ch;
+  font-size: 0.98rem;
+  line-height: 1.68;
+  color: var(--text-secondary);
+}
+
+/* =========================================================
+   ETAPA 3: REPRODUCTOR + LETRA SINCRONIZADA
+   ========================================================= */
+.music-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.player-card {
+  padding: 18px;
+}
+
+.player-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cover-frame {
+  position: relative;
+  flex-shrink: 0;
+  width: 86px;
+  aspect-ratio: 4 / 5;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.55);
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.cover-frame.is-playing {
+  transform: scale(1.03);
+  box-shadow: 0 14px 36px rgba(145, 92, 255, 0.45),
+    0 0 22px rgba(255, 94, 138, 0.25);
+}
+
+.cover-aura {
+  position: absolute;
+  inset: -12%;
+  background: radial-gradient(circle, rgba(157, 123, 255, 0.4), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.cover-frame.is-playing .cover-aura {
+  opacity: 1;
+}
+
+.song-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.track-meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.track-title {
+  margin: 8px 0 2px;
+  font-size: clamp(1.15rem, 4.4vw, 1.45rem);
+  font-weight: 700;
+  color: #ffffff;
+  overflow-wrap: break-word;
+}
+
+.track-artist {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.player-controls-wrap {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.progress-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.progress-slider {
+  --progress: 0%;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    90deg,
+    var(--accent-cyan) 0%,
+    var(--accent-violet) var(--progress),
+    rgba(255, 255, 255, 0.16) var(--progress)
+  );
+}
+
+.progress-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--accent-violet);
+  box-shadow: 0 0 12px rgba(103, 212, 255, 0.8);
+  transition: transform 0.15s ease;
+}
+
+.progress-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.18);
+}
+
+.progress-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid var(--accent-violet);
+  box-shadow: 0 0 12px rgba(103, 212, 255, 0.8);
+}
+
+.time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.play-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 54px;
+  height: 54px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  background: linear-gradient(135deg, #4b6bff 0%, #9b52ff 58%, #e04274 100%);
+  box-shadow: 0 10px 24px rgba(124, 82, 255, 0.45);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.play-btn:hover:not(:disabled) {
+  transform: scale(1.05);
+  box-shadow: 0 12px 30px rgba(145, 92, 255, 0.65);
+}
+
+.play-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Panel de Letra */
+.lyrics-card {
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 12px;
+  min-height: 270px;
+  height: clamp(275px, 43dvh, 420px);
+}
+
+.lyrics-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.lyrics-pill {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--accent-cyan);
+}
+
+.lyrics-hint {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.lyrics-viewport {
+  position: relative;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 4px;
+  scroll-behavior: smooth;
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 14%,
+    #000 86%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    #000 14%,
+    #000 86%,
+    transparent 100%
+  );
+  scrollbar-width: thin;
+  scrollbar-color: rgba(157, 123, 255, 0.35) transparent;
+}
+
+.lyrics-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 28% 4px;
+}
+
+.lyric-line {
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  text-align: center;
+  font-size: clamp(0.98rem, 3.8vw, 1.15rem);
+  font-weight: 500;
+  line-height: 1.45;
+  color: rgba(188, 197, 227, 0.48);
+  cursor: pointer;
+  transition: color 0.28s ease, transform 0.28s ease, background 0.28s ease,
+    text-shadow 0.28s ease;
+}
+
+.lyric-line:hover {
+  color: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.lyric-line.is-past {
+  color: rgba(188, 197, 227, 0.34);
+}
+
+.lyric-line.is-active {
+  color: #ffffff;
+  font-weight: 700;
+  transform: scale(1.04);
+  background: rgba(157, 123, 255, 0.14);
+  text-shadow: 0 0 18px rgba(103, 212, 255, 0.55),
+    0 0 28px rgba(255, 94, 138, 0.3);
+}
+
+.lyrics-status {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 20px 14px;
+  gap: 8px;
+}
+
+.lyrics-status-title {
+  margin: 0;
+  font-size: 0.98rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.lyrics-status-detail {
+  margin: 0;
+  max-width: 36ch;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.lyrics-status[data-state='error'] .lyrics-status-title {
+  color: #ffb8cd;
+}
+
+/* =========================================================
+   ETAPA 4: FINAL ROMÁNTICO CON PANDA
+   ========================================================= */
+.finale-card {
+  padding: 28px 20px 26px;
+  text-align: center;
+  border-color: rgba(255, 148, 184, 0.22);
+}
+
+.panda-showcase {
+  position: relative;
+  width: clamp(150px, 42vw, 210px);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto 14px;
+  display: grid;
+  place-items: center;
+}
+
+.panda-aura {
+  position: absolute;
+  inset: -6%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 94, 138, 0.36) 0%,
+    rgba(157, 123, 255, 0.24) 48%,
+    transparent 74%
+  );
+  filter: blur(14px);
+  animation: pulseAura 4.2s ease-in-out infinite;
+}
+
+.panda-hero-img {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 24px;
+  filter: drop-shadow(0 14px 28px rgba(4, 6, 18, 0.72));
+  animation: softFloat 4.6s ease-in-out infinite;
+}
+
+.finale-dedication {
+  margin: 8px auto 18px;
+  max-width: 36ch;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(1.02rem, 3.8vw, 1.2rem);
+  line-height: 1.5;
+  color: #ffd9e6;
+}
+
+.letter-box {
+  padding: 18px 18px 16px;
+  border-radius: 18px;
+  text-align: left;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(255, 175, 205, 0.18);
+}
+
+.letter-body {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  font-size: 0.93rem;
+  line-height: 1.66;
+  color: var(--text-secondary);
+}
+
+.letter-body p {
+  margin: 0;
+}
+
+.letter-signature {
+  margin: 14px 0 0;
+  text-align: right;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 0.96rem;
+  color: #ffc2d8;
+}
+
+.finale-actions {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* =========================================================
+   RESPONSIVE DESKTOP & PANTALLAS MEDIANAS
+   ========================================================= */
+@media (min-width: 600px) {
+  .login-card {
+    padding: 32px 34px 34px;
+  }
+
+  .avengers-hero-img {
+    max-height: 180px;
+  }
+
+  .welcome-card {
+    padding: 44px 38px 38px;
+  }
+
+  .finale-card {
+    padding: 36px 36px 32px;
+  }
+
+  .finale-actions {
+    flex-direction: row;
+  }
+
+  .finale-actions .btn-primary,
+  .finale-actions .btn-secondary {
+    flex: 1;
+  }
+}
+
+@media (min-width: 900px) {
+  .music-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+    gap: 26px;
+    align-items: stretch;
+  }
+
+  .player-card {
+    padding: 26px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .player-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .cover-frame {
+    width: 215px;
+    border-radius: 18px;
+  }
+
+  .lyrics-card {
+    padding: 22px 24px 16px;
+    height: min(600px, 76dvh);
+  }
+
+  .lyric-line {
+    font-size: 1.18rem;
+  }
+}

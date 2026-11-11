@@ -57,18 +57,37 @@ class ManualLrcSyncTool {
   }
 
   bindEvents() {
-    this.playBtn.addEventListener('click', () => this.togglePlay());
-    this.rewindBtn.addEventListener('click', () => this.seekBy(-5));
-    this.forwardBtn.addEventListener('click', () => this.seekBy(5));
+    this.playBtn.addEventListener('click', () => {
+      this.playBtn.blur();
+      this.togglePlay();
+    });
+    this.rewindBtn.addEventListener('click', () => {
+      this.rewindBtn.blur();
+      this.seekBy(-5);
+    });
+    this.forwardBtn.addEventListener('click', () => {
+      this.forwardBtn.blur();
+      this.seekBy(5);
+    });
 
     this.rateSelect.addEventListener('change', () => {
       const rate = parseFloat(this.rateSelect.value);
       if (Number.isFinite(rate)) this.audio.playbackRate = rate;
+      this.rateSelect.blur();
     });
 
-    this.markBtn.addEventListener('click', () => this.markNextLine());
-    this.undoBtn.addEventListener('click', () => this.undoLastMark());
-    this.resetTimesBtn.addEventListener('click', () => this.clearAllTimes());
+    this.markBtn.addEventListener('click', () => {
+      this.markBtn.blur();
+      this.markNextLine();
+    });
+    this.undoBtn.addEventListener('click', () => {
+      this.undoBtn.blur();
+      this.undoLastMark();
+    });
+    this.resetTimesBtn.addEventListener('click', () => {
+      this.resetTimesBtn.blur();
+      this.clearAllTimes();
+    });
     this.exportDownloadBtn.addEventListener('click', () => this.downloadLrc());
     this.exportCopyBtn.addEventListener('click', () => this.copyLrc());
 

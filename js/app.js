@@ -368,6 +368,10 @@ class RomanticUniverseApp {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     this.currentStage = nextKey;
+
+    if (nextKey === 'music') {
+      this.player.onEnterStage();
+    }
   }
 }
 

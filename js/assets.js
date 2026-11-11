@@ -26,8 +26,8 @@ export const LOCAL_ASSETS = {
     'musica/cancion.mp3'
   ],
   lyricsLrc: [
-    'letra/letra.lrc.txt',
-    'letra/letra.lrc'
+    'letra/letra.lrc',
+    'letra/letra.lrc.txt'
   ]
 };
 
@@ -116,17 +116,27 @@ export function bindAudioWithFallback(audioElement, candidates, onFatalError) {
  */
 export async function fetchLyricsFile(candidates) {
   const isFileProtocol = window.location.protocol === 'file:';
+  let emptyFallback = null;
 
   for (const path of candidates) {
     try {
       const response = await fetch(path, { cache: 'no-store' });
       if (response.ok) {
         const content = await response.text();
-        return { ok: true, content, path };
+        if (content.trim().length > 0) {
+          return { ok: true, content, path };
+        }
+        if (!emptyFallback) {
+          emptyFallback = { ok: true, content, path };
+        }
       }
     } catch {
       // Continuar con el siguiente candidato si falla la lectura
     }
+  }
+
+  if (emptyFallback) {
+    return emptyFallback;
   }
 
   return {

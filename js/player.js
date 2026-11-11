@@ -327,9 +327,12 @@ export class MusicPlayerController {
       item.setAttribute('aria-label', `Ir a ${formatTime(line.time)}: ${line.text}`);
 
       item.addEventListener('click', () => {
-        if (this.hasAudioError || !Number.isFinite(this.audio.duration)) return;
+        if (this.hasAudioError) return;
         this.onPlaybackActivity();
-        this.audio.currentTime = line.time;
+        const targetTime = Number.isFinite(this.audio.duration)
+          ? Math.min(line.time, this.audio.duration)
+          : line.time;
+        this.audio.currentTime = targetTime;
         this.hasStartedOnce = true;
         this.userScrollingUntil = 0;
         this.updateStartButtonVisibility();
@@ -399,9 +402,14 @@ export class MusicPlayerController {
 
       const canAutoScroll = forceScroll || Date.now() > this.userScrollingUntil;
       if (canAutoScroll) {
-        const viewportHeight = this.lyricsViewport.clientHeight;
+        const viewportRect = this.lyricsViewport.getBoundingClientRect();
+        const activeRect = activeEl.getBoundingClientRect();
+        const relativeTop =
+          activeRect.top - viewportRect.top + this.lyricsViewport.scrollTop;
         const targetTop =
-          activeEl.offsetTop - viewportHeight / 2 + activeEl.clientHeight / 2;
+          relativeTop -
+          this.lyricsViewport.clientHeight / 2 +
+          activeEl.clientHeight / 2;
 
         this.lyricsViewport.scrollTo({
           top: Math.max(0, targetTop),
@@ -451,6 +459,14 @@ export class MusicPlayerController {
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
+    }
+  }
+
+  onEnterStage() {
+    this.updateStartButtonVisibility();
+    this.syncProgress();
+    if (this.isSyncedMode) {
+      this.syncLyrics(true);
     }
   }
 

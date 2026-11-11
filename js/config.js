@@ -39,13 +39,14 @@ export const APP_CONFIG = {
   finale: {
     badge: 'CAPÍTULO FINAL',
     title: 'Mi pandita 🐼',
-    dedication: '“Mi pandita, en este universo y en cualquier otro, siempre te elegiría a ti.”',
+    dedication:
+      '“Hay personas que llegan sin hacer ruido y terminan volviéndose un lugar bonito en la vida.”',
     letterParagraphs: [
-      'Gracias por existir en mi vida y por convertir los momentos simples en recuerdos que brillan como estrellas.',
-      'Si tuviera que recorrer mil universos distintos, en todos buscaría tu sonrisa, tu abrazo y esa paz tan tuya que lo ilumina todo.',
-      'Esta pequeña historia es solo una forma de recordarte cuánto te quiero hoy, mañana y en cada línea del tiempo que nos quede por vivir.'
+      'Gracias por ser esa persona especial cuya presencia hace que los días simples se sientan mucho más ligeros y bonitos.',
+      'No hacen falta grandes discursos para agradecer lo valioso que es coincidir contigo, compartir buenos momentos y saber que hay alguien sincero ahí.',
+      'Ojalá la vida te regale siempre motivos para sonreír, calma en los días complicados y momentos tan bonitos como los que tú sabes dejar.'
     ],
-    signature: 'Con todo mi amor, siempre tuyo ♥',
+    signature: 'Con mucho cariño 🤍',
     replaySongText: 'Volver a escuchar la canción',
     restartExperienceText: 'Reiniciar experiencia'
   }

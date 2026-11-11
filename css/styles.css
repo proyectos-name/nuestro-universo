@@ -253,6 +253,14 @@ img {
   font-size: clamp(1.8rem, 6.2vw, 2.55rem);
 }
 
+.emoji-natural {
+  color: initial;
+  -webkit-text-fill-color: initial;
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+}
+
 .hero-subtitle {
   margin: 0 auto;
   max-width: 34ch;

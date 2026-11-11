@@ -63,7 +63,20 @@ class RomanticUniverseApp {
 
     // Final con panda
     document.getElementById('finale-badge').textContent = APP_CONFIG.finale.badge;
-    document.getElementById('finale-title').textContent = APP_CONFIG.finale.title;
+    const finaleTitleEl = document.getElementById('finale-title');
+    finaleTitleEl.textContent = '';
+    const titleParts = APP_CONFIG.finale.title.split(/(🐼)/);
+    titleParts.forEach((part) => {
+      if (!part) return;
+      if (part === '🐼') {
+        const span = document.createElement('span');
+        span.className = 'emoji-natural';
+        span.textContent = part;
+        finaleTitleEl.appendChild(span);
+      } else {
+        finaleTitleEl.appendChild(document.createTextNode(part));
+      }
+    });
     document.getElementById('finale-dedication').textContent =
       APP_CONFIG.finale.dedication;
     document.getElementById('finale-signature').textContent =

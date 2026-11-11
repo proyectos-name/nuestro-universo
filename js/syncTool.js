@@ -43,17 +43,59 @@ class ManualLrcSyncTool {
     this.historyStack = [];
     this.isSeeking = false;
     this.rafId = null;
+    this.audioErrorMessage = null;
+    this.lyricsLoadedPath = null;
 
+    window.__SYNC_TOOL_INITIALIZED__ = true;
     this.init();
   }
 
   async init() {
-    bindAudioWithFallback(this.audio, LOCAL_ASSETS.songAudio, (msg) => {
-      this.setStatus(msg, 'error');
-    });
+    try {
+      this.verifyDomElements();
+      this.setStatus('Cargando audio y letra local...', 'info');
 
-    this.bindEvents();
-    await this.loadProjectLyrics();
+      bindAudioWithFallback(this.audio, LOCAL_ASSETS.songAudio, (msg) => {
+        this.audioErrorMessage = msg;
+        this.setStatus(msg, 'error');
+      });
+
+      this.bindEvents();
+      await this.loadProjectLyrics();
+    } catch (err) {
+      this.setStatus(
+        `Error inesperado al iniciar el sincronizador: ${err?.message || String(err)}`,
+        'error'
+      );
+    }
+  }
+
+  verifyDomElements() {
+    const required = [
+      ['tool-audio', this.audio],
+      ['tool-play-btn', this.playBtn],
+      ['tool-rewind-btn', this.rewindBtn],
+      ['tool-forward-btn', this.forwardBtn],
+      ['tool-rate-select', this.rateSelect],
+      ['tool-progress', this.progressEl],
+      ['tool-current-time', this.currentTimeEl],
+      ['tool-duration', this.durationEl],
+      ['tool-mark-btn', this.markBtn],
+      ['tool-undo-btn', this.undoBtn],
+      ['tool-reset-times-btn', this.resetTimesBtn],
+      ['tool-download-btn', this.exportDownloadBtn],
+      ['tool-copy-btn', this.exportCopyBtn],
+      ['tool-export-validation', this.exportValidationEl],
+      ['tool-status-banner', this.statusBanner],
+      ['tool-preview-active', this.previewActiveEl],
+      ['tool-lines-list', this.linesContainer],
+      ['tool-lrc-output', this.outputPreviewEl],
+      ['tool-marked-count', this.progressCountEl]
+    ];
+    const missing = required.filter(([, el]) => !el).map(([id]) => id);
+    if (missing.length) {
+      throw new Error(`Faltan elementos HTML requeridos: ${missing.join(', ')}`);
+    }
   }
 
   bindEvents() {
@@ -92,8 +134,15 @@ class ManualLrcSyncTool {
     this.exportCopyBtn.addEventListener('click', () => this.copyLrc());
 
     this.audio.addEventListener('loadedmetadata', () => {
+      this.audioErrorMessage = null;
       this.durationEl.textContent = formatTime(this.audio.duration);
       this.updateProgressUI();
+      if (this.items.length > 0 && this.lyricsLoadedPath) {
+        this.setStatus(
+          `Listo: audio cargado (${formatTime(this.audio.duration)}) y ${this.items.length} versos de ${this.lyricsLoadedPath}. Pulsa Reproducir (P) y marca con Espacio o Enter.`,
+          'success'
+        );
+      }
     });
 
     this.audio.addEventListener('play', () => {
@@ -160,29 +209,37 @@ class ManualLrcSyncTool {
       return;
     }
 
+    this.lyricsLoadedPath = result.path;
     const parsed = parseLrc(result.content);
+    const durationReady = Number.isFinite(this.audio.duration) && this.audio.duration > 0;
+    const audioTag = durationReady ? ` • Audio listo (${formatTime(this.audio.duration)})` : '';
+
     if (parsed.hasTimestamps && parsed.lines.length > 0) {
       this.items = parsed.lines.map((line) => ({
         text: line.text,
         time: line.time
       }));
       this.cursorIndex = this.items.length;
-      this.setStatus(
-        `Archivo cargado (${result.path}) con ${this.items.length} versos ya sincronizados. Puedes ajustar cualquier tiempo y volver a exportar.`,
-        'info'
-      );
+      if (!this.audioErrorMessage) {
+        this.setStatus(
+          `Archivo cargado (${result.path}) con ${this.items.length} versos ya sincronizados${audioTag}.`,
+          'success'
+        );
+      }
     } else if (parsed.plainLines.length > 0) {
       this.items = parsed.plainLines.map((text) => ({
         text,
         time: null
       }));
       this.cursorIndex = 0;
-      this.setStatus(
-        `Archivo cargado (${result.path}): ${this.items.length} versos listos para marcar manualmente.`,
-        'info'
-      );
+      if (!this.audioErrorMessage) {
+        this.setStatus(
+          `Archivo cargado (${result.path}): ${this.items.length} versos listos para marcar manualmente${audioTag}.`,
+          'success'
+        );
+      }
     } else {
-      this.setStatus('El archivo de letra está vacío.', 'error');
+      this.setStatus(`El archivo ${result.path} está vacío.`, 'error');
     }
 
     this.renderLines();
@@ -263,7 +320,12 @@ class ManualLrcSyncTool {
       previewLineBtn.addEventListener('click', () => {
         if (item.time === null) return;
         this.audio.currentTime = Math.max(0, item.time - 1.5);
-        this.audio.play().catch(() => {});
+        this.audio.play().catch((err) => {
+          this.setStatus(
+            `No se pudo reproducir el fragmento: ${err?.message || 'error de reproducción'}`,
+            'error'
+          );
+        });
       });
 
       const clearBtn = document.createElement('button');
@@ -478,8 +540,17 @@ class ManualLrcSyncTool {
   }
 
   togglePlay() {
+    if (this.audioErrorMessage) {
+      this.setStatus(this.audioErrorMessage, 'error');
+      return;
+    }
     if (this.audio.paused) {
-      this.audio.play().catch(() => {});
+      this.audio.play().catch((err) => {
+        this.setStatus(
+          `No se pudo iniciar la reproducción: ${err?.message || 'error de audio'}`,
+          'error'
+        );
+      });
     } else {
       this.audio.pause();
     }
@@ -552,6 +623,20 @@ class ManualLrcSyncTool {
   }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  new ManualLrcSyncTool();
-});
+function bootstrapSyncTool() {
+  try {
+    new ManualLrcSyncTool();
+  } catch (err) {
+    const banner = document.getElementById('tool-status-banner');
+    if (banner) {
+      banner.dataset.type = 'error';
+      banner.textContent = `Error al inicializar el sincronizador: ${err?.message || String(err)}`;
+    }
+  }
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', bootstrapSyncTool);
+} else {
+  bootstrapSyncTool();
+}

@@ -33,6 +33,10 @@ textarea {
   color: inherit;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .tool-shell {
   max-width: 1180px;
   margin: 0 auto;
@@ -96,6 +100,12 @@ textarea {
   color: #ffd3df;
   background: rgba(255, 94, 138, 0.16);
   border-color: rgba(255, 94, 138, 0.36);
+}
+
+.tool-status[data-type='success'] {
+  color: #c5ffe4;
+  background: rgba(46, 204, 138, 0.14);
+  border-color: rgba(46, 204, 138, 0.36);
 }
 
 .tool-player-panel,

@@ -118,6 +118,36 @@
       </section>
     </main>
 
+    <script>
+      (function () {
+        var banner = document.getElementById('tool-status-banner');
+        if (window.location.protocol === 'file:') {
+          if (banner) {
+            banner.dataset.type = 'error';
+            banner.textContent =
+              'Error: abriste sync-tool.html como archivo local (file://). Los navegadores bloquean los módulos ES y la lectura de la letra sin un servidor HTTP. Ejecuta "python -m http.server 8000" (o Live Server) y abre http://localhost:8000/sync-tool.html.';
+          }
+          return;
+        }
+
+        window.addEventListener('error', function (event) {
+          if (banner && !window.__SYNC_TOOL_INITIALIZED__) {
+            banner.dataset.type = 'error';
+            banner.textContent =
+              'Error al inicializar JavaScript: ' +
+              (event.message || 'revisa la consola del navegador.');
+          }
+        });
+
+        window.setTimeout(function () {
+          if (banner && !window.__SYNC_TOOL_INITIALIZED__) {
+            banner.dataset.type = 'error';
+            banner.textContent =
+              'No se pudo inicializar js/syncTool.js. Verifica que el servidor HTTP esté activo y revisa la pestaña Consola / Red (F12).';
+          }
+        }, 2000);
+      })();
+    </script>
     <script type="module" src="js/syncTool.js"></script>
   </body>
 </html>

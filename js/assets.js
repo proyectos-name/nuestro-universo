@@ -90,17 +90,20 @@ export function applyBackgroundWithFallback(targetElement, candidates) {
 export function bindAudioWithFallback(audioElement, candidates, onFatalError) {
   if (!audioElement || !candidates.length) return;
   let index = 0;
+  const tried = [];
 
   const tryNext = () => {
     if (index >= candidates.length) {
       if (typeof onFatalError === 'function') {
         onFatalError(
-          'No se pudo cargar el archivo de audio local. Verifica que exista musica/cancion.mp3.'
+          `No se pudo cargar el audio local (rutas probadas: ${tried.join(', ')}).`
         );
       }
       return;
     }
-    audioElement.src = candidates[index];
+    const candidate = candidates[index];
+    tried.push(candidate);
+    audioElement.src = candidate;
     audioElement.load();
     index += 1;
   };
@@ -117,6 +120,7 @@ export function bindAudioWithFallback(audioElement, candidates, onFatalError) {
 export async function fetchLyricsFile(candidates) {
   const isFileProtocol = window.location.protocol === 'file:';
   let emptyFallback = null;
+  const errors = [];
 
   for (const path of candidates) {
     try {
@@ -129,9 +133,11 @@ export async function fetchLyricsFile(candidates) {
         if (!emptyFallback) {
           emptyFallback = { ok: true, content, path };
         }
+      } else {
+        errors.push(`${path} (HTTP ${response.status})`);
       }
-    } catch {
-      // Continuar con el siguiente candidato si falla la lectura
+    } catch (err) {
+      errors.push(`${path} (${err?.message || 'error de red'})`);
     }
   }
 
@@ -142,7 +148,7 @@ export async function fetchLyricsFile(candidates) {
   return {
     ok: false,
     reason: isFileProtocol
-      ? 'Para leer el archivo letra/letra.lrc en el navegador, abre el proyecto desde un servidor local (Live Server, python -m http.server o GitHub Pages).'
-      : 'No se pudo acceder al archivo de letra sincronizada (letra/letra.lrc).'
+      ? 'La página se abrió con file://. Ábrela mediante un servidor HTTP local (por ejemplo: python -m http.server 8000 o Live Server) para leer la letra.'
+      : `No se pudo cargar ningún archivo de letra (${errors.join(' | ')}).`
   };
 }

@@ -7,42 +7,86 @@ import {
 } from './assets.js';
 import { findActiveLyricIndex, formatTime, parseLrc } from './lrcParser.js';
 
+const OFFSET_STORAGE_KEY = 'nuestro-universo-lrc-offset-ms';
+const SKIP_SECONDS = 10;
+const OFFSET_STEP_MS = 100;
+
 /**
  * Controlador del reproductor musical y la letra sincronizada (.lrc).
+ * Utiliza HTMLAudioElement.currentTime como fuente única del tiempo real.
  */
 export class MusicPlayerController {
   /**
-   * @param {{ onSongEnded?: () => void }} options
+   * @param {{ onSongEnded?: () => void, onPlaybackActivity?: () => void }} options
    */
   constructor(options = {}) {
     this.onSongEnded = options.onSongEnded || (() => {});
+    this.onPlaybackActivity = options.onPlaybackActivity || (() => {});
 
-    // Elementos del DOM
+    // Elementos del reproductor
     this.audio = document.getElementById('audio-element');
     this.coverImg = document.getElementById('song-cover');
     this.coverGlow = document.getElementById('cover-frame');
     this.titleEl = document.getElementById('song-title');
     this.artistEl = document.getElementById('song-artist');
+    this.startPlaybackBtn = document.getElementById('start-playback-btn');
     this.playBtn = document.getElementById('play-pause-btn');
+    this.rewindBtn = document.getElementById('rewind-btn');
+    this.forwardBtn = document.getElementById('forward-btn');
+    this.restartSongBtn = document.getElementById('restart-song-btn');
     this.iconPlay = document.getElementById('icon-play');
     this.iconPause = document.getElementById('icon-pause');
     this.progressBar = document.getElementById('progress-bar');
     this.currentTimeEl = document.getElementById('current-time');
     this.totalDurationEl = document.getElementById('total-duration');
+    this.endedBannerEl = document.getElementById('ended-transition-banner');
     this.audioErrorEl = document.getElementById('audio-error');
+
+    // Elementos de la letra y ajuste de desfase
+    this.lyricsPillEl = document.getElementById('lyrics-pill');
+    this.lyricsHintEl = document.getElementById('lyrics-hint');
+    this.offsetControlsEl = document.getElementById('sync-offset-controls');
+    this.offsetMinusBtn = document.getElementById('offset-minus-btn');
+    this.offsetPlusBtn = document.getElementById('offset-plus-btn');
+    this.offsetValueEl = document.getElementById('sync-offset-value');
+    this.offsetResetBtn = document.getElementById('offset-reset-btn');
     this.lyricsViewport = document.getElementById('lyrics-viewport');
     this.lyricsList = document.getElementById('lyrics-list');
     this.lyricsStatusEl = document.getElementById('lyrics-status');
 
     // Estado interno
+    this.isSyncedMode = false;
     this.lyricLines = [];
     this.activeIndex = -1;
     this.isSeeking = false;
+    this.hasStartedOnce = false;
     this.rafId = null;
     this.hasAudioError = false;
     this.userScrollingUntil = 0;
+    this.syncOffsetMs = this.loadSavedOffset();
 
     this.init();
+  }
+
+  loadSavedOffset() {
+    try {
+      const raw = localStorage.getItem(OFFSET_STORAGE_KEY);
+      if (raw !== null) {
+        const parsed = parseInt(raw, 10);
+        if (!Number.isNaN(parsed)) return parsed;
+      }
+    } catch {
+      // Ignorar si localStorage no está disponible
+    }
+    return APP_CONFIG.music.defaultSyncOffsetMs || 0;
+  }
+
+  saveOffset() {
+    try {
+      localStorage.setItem(OFFSET_STORAGE_KEY, String(this.syncOffsetMs));
+    } catch {
+      // Ignorar si localStorage no está disponible
+    }
   }
 
   init() {
@@ -55,12 +99,50 @@ export class MusicPlayerController {
     });
 
     this.bindEvents();
+    this.updateOffsetUI();
     this.loadLyrics();
     this.updateProgressVisual(0);
+    this.updateStartButtonVisibility();
   }
 
   bindEvents() {
-    this.playBtn.addEventListener('click', () => this.togglePlay());
+    this.startPlaybackBtn.addEventListener('click', () => {
+      this.onPlaybackActivity();
+      this.play();
+    });
+
+    this.playBtn.addEventListener('click', () => {
+      this.onPlaybackActivity();
+      this.togglePlay();
+    });
+
+    this.rewindBtn.addEventListener('click', () => {
+      this.seekBy(-SKIP_SECONDS);
+    });
+
+    this.forwardBtn.addEventListener('click', () => {
+      this.seekBy(SKIP_SECONDS);
+    });
+
+    this.restartSongBtn.addEventListener('click', () => {
+      this.onPlaybackActivity();
+      this.restartAndPlay();
+    });
+
+    this.offsetMinusBtn.addEventListener('click', () => {
+      this.adjustSyncOffset(-OFFSET_STEP_MS);
+    });
+
+    this.offsetPlusBtn.addEventListener('click', () => {
+      this.adjustSyncOffset(OFFSET_STEP_MS);
+    });
+
+    this.offsetResetBtn.addEventListener('click', () => {
+      this.syncOffsetMs = 0;
+      this.saveOffset();
+      this.updateOffsetUI();
+      this.syncLyrics(true);
+    });
 
     this.audio.addEventListener('loadedmetadata', () => {
       this.hasAudioError = false;
@@ -75,6 +157,9 @@ export class MusicPlayerController {
     });
 
     this.audio.addEventListener('play', () => {
+      this.hasStartedOnce = true;
+      this.hideEndedBanner();
+      this.updateStartButtonVisibility();
       this.updatePlayState(true);
       this.startSyncLoop();
     });
@@ -82,7 +167,7 @@ export class MusicPlayerController {
     this.audio.addEventListener('pause', () => {
       this.updatePlayState(false);
       this.stopSyncLoop();
-      this.syncLyrics(true);
+      this.syncLyrics(false);
     });
 
     this.audio.addEventListener('timeupdate', () => {
@@ -94,6 +179,7 @@ export class MusicPlayerController {
 
     this.audio.addEventListener('seeked', () => {
       this.userScrollingUntil = 0;
+      this.hideEndedBanner();
       this.syncProgress();
       this.syncLyrics(true);
     });
@@ -101,10 +187,12 @@ export class MusicPlayerController {
     this.audio.addEventListener('ended', () => {
       this.updatePlayState(false);
       this.stopSyncLoop();
+      this.syncProgress();
+      this.showEndedBanner();
       this.onSongEnded();
     });
 
-    // Manejo de barra de progreso (compatible con mouse y táctil)
+    // Barra de progreso interactiva (mouse y táctil)
     this.progressBar.addEventListener('input', () => {
       this.isSeeking = true;
       const pct = parseFloat(this.progressBar.value) || 0;
@@ -115,17 +203,20 @@ export class MusicPlayerController {
     });
 
     this.progressBar.addEventListener('change', () => {
+      this.onPlaybackActivity();
       const pct = parseFloat(this.progressBar.value) || 0;
       const duration = this.audio.duration || 0;
       if (duration > 0) {
         this.audio.currentTime = (pct / 100) * duration;
+        this.hasStartedOnce = true;
+        this.updateStartButtonVisibility();
       }
       this.isSeeking = false;
       this.userScrollingUntil = 0;
       this.syncLyrics(true);
     });
 
-    // Pausar autoscroll brevemente si el usuario explora la letra manualmente
+    // Pausar autoscroll brevemente si el usuario explora manualmente
     const pauseAutoScroll = () => {
       this.userScrollingUntil = Date.now() + 2800;
     };
@@ -133,18 +224,48 @@ export class MusicPlayerController {
     this.lyricsViewport.addEventListener('touchstart', pauseAutoScroll, { passive: true });
   }
 
+  seekBy(deltaSeconds) {
+    if (this.hasAudioError || !Number.isFinite(this.audio.duration)) return;
+    this.onPlaybackActivity();
+    const nextTime = Math.min(
+      Math.max(0, this.audio.currentTime + deltaSeconds),
+      this.audio.duration
+    );
+    this.audio.currentTime = nextTime;
+    this.hasStartedOnce = true;
+    this.userScrollingUntil = 0;
+    this.updateStartButtonVisibility();
+    this.syncProgress();
+    this.syncLyrics(true);
+  }
+
+  adjustSyncOffset(deltaMs) {
+    this.syncOffsetMs = Math.max(-5000, Math.min(5000, this.syncOffsetMs + deltaMs));
+    this.saveOffset();
+    this.updateOffsetUI();
+    this.syncLyrics(true);
+  }
+
+  updateOffsetUI() {
+    const sign = this.syncOffsetMs > 0 ? '+' : '';
+    this.offsetValueEl.textContent = `${sign}${this.syncOffsetMs} ms`;
+    this.offsetResetBtn.hidden = this.syncOffsetMs === 0;
+  }
+
   async loadLyrics() {
     this.showLyricsStatus(
-      'Cargando letra sincronizada...',
-      'Sincronizando versos con las estrellas',
+      'Cargando letra...',
+      'Preparando los versos de nuestra canción',
       'loading'
     );
 
     const result = await fetchLyricsFile(LOCAL_ASSETS.lyricsLrc);
 
     if (!result.ok) {
+      this.isSyncedMode = false;
+      this.offsetControlsEl.hidden = true;
       this.showLyricsStatus(
-        'No se pudo leer la letra sincronizada',
+        'No se pudo leer el archivo de letra',
         result.reason,
         'error'
       );
@@ -160,22 +281,39 @@ export class MusicPlayerController {
       this.artistEl.textContent = parsed.meta.artist;
     }
 
-    if (!parsed.lines.length) {
-      this.showLyricsStatus(
-        'Letra aún sin versos sincronizados',
-        'El archivo letra/letra.lrc está vacío o no contiene marcas de tiempo [mm:ss.xx]. Puedes escuchar la canción completa y continuar cuando desees.',
-        'empty'
-      );
+    if (parsed.hasTimestamps && parsed.lines.length > 0) {
+      this.isSyncedMode = true;
+      this.lyricLines = parsed.lines;
+      this.lyricsPillEl.textContent = 'LETRA EN VIVO';
+      this.lyricsHintEl.textContent = 'Toca un verso para saltar';
+      this.offsetControlsEl.hidden = false;
+      this.renderSyncedLyrics();
       return;
     }
 
-    this.lyricLines = parsed.lines;
-    this.renderLyrics();
+    if (parsed.plainLines.length > 0) {
+      this.isSyncedMode = false;
+      this.lyricLines = [];
+      this.lyricsPillEl.textContent = 'LETRA COMPLETA';
+      this.lyricsHintEl.textContent = 'Modo lectura (sin tiempos LRC)';
+      this.offsetControlsEl.hidden = true;
+      this.renderPlainLyrics(parsed.plainLines);
+      return;
+    }
+
+    this.isSyncedMode = false;
+    this.offsetControlsEl.hidden = true;
+    this.showLyricsStatus(
+      'Letra aún vacía',
+      'El archivo de letra todavía no tiene versos cargados.',
+      'empty'
+    );
   }
 
-  renderLyrics() {
+  renderSyncedLyrics() {
     this.lyricsStatusEl.hidden = true;
     this.lyricsList.hidden = false;
+    this.lyricsList.classList.remove('lyrics-list--plain');
     this.lyricsList.innerHTML = '';
 
     const fragment = document.createDocumentFragment();
@@ -189,9 +327,12 @@ export class MusicPlayerController {
       item.setAttribute('aria-label', `Ir a ${formatTime(line.time)}: ${line.text}`);
 
       item.addEventListener('click', () => {
-        if (!Number.isFinite(this.audio.duration)) return;
+        if (this.hasAudioError || !Number.isFinite(this.audio.duration)) return;
+        this.onPlaybackActivity();
         this.audio.currentTime = line.time;
+        this.hasStartedOnce = true;
         this.userScrollingUntil = 0;
+        this.updateStartButtonVisibility();
         this.syncLyrics(true);
         if (this.audio.paused) {
           this.play();
@@ -206,10 +347,38 @@ export class MusicPlayerController {
     this.syncLyrics(true);
   }
 
-  syncLyrics(forceScroll = false) {
-    if (!this.lyricLines.length) return;
+  renderPlainLyrics(plainLines) {
+    this.lyricsStatusEl.hidden = true;
+    this.lyricsList.hidden = false;
+    this.lyricsList.classList.add('lyrics-list--plain');
+    this.lyricsList.innerHTML = '';
 
-    const newIndex = findActiveLyricIndex(this.lyricLines, this.audio.currentTime);
+    const notice = document.createElement('p');
+    notice.className = 'lyrics-plain-note';
+    notice.textContent =
+      'Letra original en modo lectura (aún sin marcas de tiempo LRC).';
+    this.lyricsList.appendChild(notice);
+
+    const fragment = document.createDocumentFragment();
+    plainLines.forEach((text) => {
+      const p = document.createElement('p');
+      p.className = 'lyric-line-plain';
+      p.textContent = text;
+      fragment.appendChild(p);
+    });
+
+    this.lyricsList.appendChild(fragment);
+    this.lyricsViewport.scrollTo({ top: 0, behavior: 'auto' });
+  }
+
+  syncLyrics(forceScroll = false) {
+    if (!this.isSyncedMode || !this.lyricLines.length) return;
+
+    const newIndex = findActiveLyricIndex(
+      this.lyricLines,
+      this.audio.currentTime,
+      this.syncOffsetMs
+    );
     if (newIndex === this.activeIndex && !forceScroll) return;
 
     const children = this.lyricsList.children;
@@ -290,7 +459,6 @@ export class MusicPlayerController {
     try {
       await this.audio.play();
     } catch {
-      // El navegador puede requerir interacción directa si no vino de un clic
       this.updatePlayState(false);
     }
   }
@@ -308,6 +476,7 @@ export class MusicPlayerController {
   }
 
   restartAndPlay() {
+    this.hideEndedBanner();
     this.audio.currentTime = 0;
     this.userScrollingUntil = 0;
     this.syncProgress();
@@ -317,10 +486,25 @@ export class MusicPlayerController {
 
   reset() {
     this.pause();
+    this.hideEndedBanner();
     this.audio.currentTime = 0;
+    this.hasStartedOnce = false;
     this.userScrollingUntil = 0;
+    this.updateStartButtonVisibility();
     this.syncProgress();
     this.syncLyrics(true);
+    if (!this.isSyncedMode) {
+      this.lyricsViewport.scrollTo({ top: 0, behavior: 'auto' });
+    }
+  }
+
+  updateStartButtonVisibility() {
+    const shouldShowStart =
+      !this.hasAudioError &&
+      !this.hasStartedOnce &&
+      this.audio.paused &&
+      (this.audio.currentTime || 0) < 0.25;
+    this.startPlaybackBtn.hidden = !shouldShowStart;
   }
 
   updatePlayState(isPlaying) {
@@ -333,16 +517,32 @@ export class MusicPlayerController {
     this.coverGlow.classList.toggle('is-playing', isPlaying);
   }
 
+  showEndedBanner() {
+    this.endedBannerEl.hidden = false;
+  }
+
+  hideEndedBanner() {
+    this.endedBannerEl.hidden = true;
+  }
+
   showAudioError(message) {
     this.hasAudioError = true;
     this.audioErrorEl.textContent = message;
     this.audioErrorEl.hidden = false;
+    this.startPlaybackBtn.hidden = true;
     this.playBtn.disabled = true;
+    this.rewindBtn.disabled = true;
+    this.forwardBtn.disabled = true;
+    this.restartSongBtn.disabled = true;
   }
 
   hideAudioError() {
     this.audioErrorEl.hidden = true;
     this.playBtn.disabled = false;
+    this.rewindBtn.disabled = false;
+    this.forwardBtn.disabled = false;
+    this.restartSongBtn.disabled = false;
+    this.updateStartButtonVisibility();
   }
 
   showLyricsStatus(title, detail, type) {

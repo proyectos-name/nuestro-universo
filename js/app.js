@@ -22,7 +22,8 @@ class RomanticUniverseApp {
     this.endedTransitionTimer = null;
 
     this.player = new MusicPlayerController({
-      onSongEnded: () => this.handleSongEnded()
+      onSongEnded: () => this.handleSongEnded(),
+      onPlaybackActivity: () => this.clearEndedTimer()
     });
 
     this.initAssets();
@@ -144,7 +145,6 @@ class RomanticUniverseApp {
 
     welcomeBtn.addEventListener('click', () => {
       this.goToStage('music');
-      this.player.restartAndPlay();
     });
 
     toFinaleBtn.addEventListener('click', () => {

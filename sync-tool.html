@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sincronizador LRC Manual — Te quiero tanto</title>
+    <link rel="stylesheet" href="css/sync-tool.css" />
+  </head>
+  <body>
+    <main class="tool-shell">
+      <header class="tool-header">
+        <div>
+          <span class="tool-badge">HERRAMIENTA DE DESARROLLO</span>
+          <h1>Sincronizador Manual LRC</h1>
+          <p class="tool-subtitle">
+            Reproduce <strong>Te quiero tanto — Kevin Kaarl</strong> y marca el
+            inicio real de cada frase con <strong>Espacio</strong>,
+            <strong>Enter</strong> o el botón inferior.
+          </p>
+        </div>
+        <a class="tool-back-link" href="index.html">← Volver a la web</a>
+      </header>
+
+      <p id="tool-status-banner" class="tool-status" data-type="info">
+        Cargando recursos locales...
+      </p>
+
+      <section class="tool-player-panel">
+        <div class="tool-transport">
+          <button id="tool-play-btn" class="btn-main" type="button">
+            Reproducir (P)
+          </button>
+          <button id="tool-rewind-btn" class="btn-ghost" type="button">-5s (←)</button>
+          <button id="tool-forward-btn" class="btn-ghost" type="button">+5s (→)</button>
+
+          <label class="rate-label">
+            Velocidad:
+            <select id="tool-rate-select">
+              <option value="0.75">0.75x</option>
+              <option value="1" selected>1.0x</option>
+              <option value="1.25">1.25x</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="tool-progress-row">
+          <span id="tool-current-time">0:00</span>
+          <input
+            id="tool-progress"
+            type="range"
+            min="0"
+            max="100"
+            step="0.1"
+            value="0"
+            aria-label="Progreso del audio"
+          />
+          <span id="tool-duration">0:00</span>
+        </div>
+
+        <div class="tool-mark-bar">
+          <button id="tool-mark-btn" class="btn-mark" type="button">
+            Marcar frase siguiente (Espacio / Enter)
+          </button>
+          <button id="tool-undo-btn" class="btn-ghost" type="button" disabled>
+            Deshacer último
+          </button>
+          <button id="tool-reset-times-btn" class="btn-ghost" type="button">
+            Limpiar todos
+          </button>
+          <span id="tool-marked-count" class="marked-count">0 / 0 marcados</span>
+        </div>
+
+        <div class="tool-live-preview">
+          <span class="preview-label">Vista previa en vivo:</span>
+          <p id="tool-preview-active" class="preview-phrase">
+            Marca versos para ver la vista previa en vivo
+          </p>
+        </div>
+
+        <audio id="tool-audio" preload="metadata"></audio>
+      </section>
+
+      <section class="tool-grid">
+        <div class="tool-card">
+          <h2>Versos originales (haz clic en cualquier frase para mover el cursor)</h2>
+          <div id="tool-lines-list" class="sync-lines-list"></div>
+        </div>
+
+        <aside class="tool-card tool-export-card">
+          <h2>Resultado LRC válido</h2>
+          <p class="export-help">
+            Cuando termines de marcar y ajustar, descarga o copia este texto y
+            reemplaza el contenido de <code>letra/letra.lrc</code> (o
+            <code>letra/letra.lrc.txt</code>).
+          </p>
+          <div class="export-actions">
+            <button id="tool-download-btn" class="btn-main" type="button">
+              Descargar letra.lrc
+            </button>
+            <button id="tool-copy-btn" class="btn-ghost" type="button">
+              Copiar LRC
+            </button>
+          </div>
+          <textarea
+            id="tool-lrc-output"
+            class="lrc-output"
+            readonly
+            spellcheck="false"
+            aria-label="Salida en formato LRC"
+          ></textarea>
+        </aside>
+      </section>
+    </main>
+
+    <script type="module" src="js/syncTool.js"></script>
+  </body>
+</html>

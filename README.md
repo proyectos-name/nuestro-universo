@@ -7,17 +7,20 @@ Experiencia web interactiva y responsive (prioridad móvil y compatible con escr
 ```text
 M-AVENGER/
 ├── index.html
+├── sync-tool.html      # Herramienta manual de sincronización LRC (entorno dev)
 ├── README.md
 ├── .gitignore
 ├── css/
 │   ├── animations.css
-│   └── styles.css
+│   ├── styles.css
+│   └── sync-tool.css
 ├── js/
 │   ├── app.js          # Flujo de pantallas y validación de login
 │   ├── assets.js       # Resolución de recursos locales
 │   ├── config.js       # Textos, canción y carta final editable
 │   ├── lrcParser.js    # Parser de marcas de tiempo .lrc
-│   └── player.js       # Reproductor de audio y sincronización karaoke
+│   ├── player.js       # Reproductor de audio y sincronización karaoke
+│   └── syncTool.js     # Controlador del sincronizador manual LRC
 ├── img/
 │   ├── avengers-equipo.png.png
 │   ├── fondo-login.png
@@ -53,9 +56,11 @@ Usa la extensión **Live Server** sobre `index.html`.
 
 - **Carta final, títulos y textos:** edita `js/config.js`.
 - **Contraseña de acceso:** `18.01.2005` (configurable en `APP_CONFIG.accessCode` dentro de `js/config.js`).
-- **Letra sincronizada:** pega las líneas con formato `[mm:ss.xx]` en `letra/letra.lrc.txt` (o `letra/letra.lrc`).
+- **Letra sincronizada:** abre `http://localhost:8000/sync-tool.html` mientras corre el servidor local, reproduce la canción y marca cada frase con **Espacio** / **Enter**; luego descarga o copia el `.lrc` generado dentro de `letra/letra.lrc.txt` (o `letra/letra.lrc`).
 
 ## Publicar en GitHub Pages
+
+Todas las rutas son relativas (`css/`, `js/`, `img/`, `musica/`, `letra/`), por lo que funciona directamente bajo subrutas como `https://proyectos-name.github.io/nuestro-universo/`.
 
 1. Sube el repositorio a GitHub.
 2. Ve a **Settings → Pages**.

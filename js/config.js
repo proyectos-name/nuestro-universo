@@ -28,9 +28,10 @@ export const APP_CONFIG = {
 
   // Datos del reproductor musical (si el .lrc trae [ti:] o [ar:], se usarán automáticamente si están presentes)
   music: {
-    defaultTitle: 'Nuestra Canción',
-    defaultArtist: 'Para Mi Pandita',
-    nextSceneLabel: 'Ir al mensaje final'
+    defaultTitle: 'Te quiero tanto',
+    defaultArtist: 'Kevin Kaarl',
+    nextSceneLabel: 'Ir al mensaje final',
+    defaultSyncOffsetMs: 0
   },
 
   // Dedicatoria y carta final editable fácilmente

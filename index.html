@@ -142,12 +142,20 @@
 
               <div class="track-meta">
                 <span class="cosmic-badge cosmic-badge--soft">BANDA SONORA</span>
-                <h2 id="song-title" class="track-title">Nuestra Canción</h2>
-                <p id="song-artist" class="track-artist">Para Mi Pandita</p>
+                <h2 id="song-title" class="track-title">Te quiero tanto</h2>
+                <p id="song-artist" class="track-artist">Kevin Kaarl</p>
               </div>
             </div>
 
             <div class="player-controls-wrap">
+              <button
+                id="start-playback-btn"
+                class="btn-primary start-playback-btn"
+                type="button"
+              >
+                Comenzar reproducción ▶
+              </button>
+
               <div class="progress-block">
                 <label for="progress-bar" class="sr-only">Progreso de la canción</label>
                 <input
@@ -165,7 +173,17 @@
                 </div>
               </div>
 
-              <div class="action-row">
+              <div class="transport-row">
+                <button
+                  id="rewind-btn"
+                  class="icon-control-btn"
+                  type="button"
+                  aria-label="Retroceder 10 segundos"
+                  title="Retroceder 10 segundos"
+                >
+                  -10s
+                </button>
+
                 <button
                   id="play-pause-btn"
                   class="play-btn"
@@ -181,10 +199,34 @@
                   </svg>
                 </button>
 
+                <button
+                  id="forward-btn"
+                  class="icon-control-btn"
+                  type="button"
+                  aria-label="Adelantar 10 segundos"
+                  title="Adelantar 10 segundos"
+                >
+                  +10s
+                </button>
+              </div>
+
+              <div class="action-row">
+                <button
+                  id="restart-song-btn"
+                  class="btn-secondary btn-compact"
+                  type="button"
+                >
+                  Desde el inicio
+                </button>
+
                 <button id="to-finale-btn" class="btn-secondary btn-compact" type="button">
                   Ir al mensaje final
                 </button>
               </div>
+
+              <p id="ended-transition-banner" class="ended-banner" role="status" hidden>
+                La canción llegó a su fin... entrando al último capítulo 🐼✨
+              </p>
 
               <p id="audio-error" class="form-error" role="alert" hidden></p>
             </div>
@@ -193,10 +235,42 @@
           </div>
 
           <!-- Panel de Letras Sincronizadas -->
-          <div class="glass-card lyrics-card" aria-label="Letra sincronizada">
+          <div class="glass-card lyrics-card" aria-label="Letra de la canción">
             <div class="lyrics-card-header">
-              <span class="lyrics-pill">LETRA EN VIVO</span>
-              <span class="lyrics-hint">Toca un verso para saltar</span>
+              <span id="lyrics-pill" class="lyrics-pill">LETRA EN VIVO</span>
+              <span id="lyrics-hint" class="lyrics-hint">Toca un verso para saltar</span>
+            </div>
+
+            <div id="sync-offset-controls" class="sync-offset-bar" hidden>
+              <span class="sync-offset-label">Ajuste:</span>
+              <button
+                id="offset-minus-btn"
+                class="sync-offset-btn"
+                type="button"
+                aria-label="Adelantar letra 100 milisegundos"
+                title="Adelantar letra (-100 ms)"
+              >
+                -100ms
+              </button>
+              <span id="sync-offset-value" class="sync-offset-value">0 ms</span>
+              <button
+                id="offset-plus-btn"
+                class="sync-offset-btn"
+                type="button"
+                aria-label="Retrasar letra 100 milisegundos"
+                title="Retrasar letra (+100 ms)"
+              >
+                +100ms
+              </button>
+              <button
+                id="offset-reset-btn"
+                class="sync-offset-reset"
+                type="button"
+                aria-label="Restablecer ajuste a cero"
+                hidden
+              >
+                Reset
+              </button>
             </div>
 
             <div id="lyrics-viewport" class="lyrics-viewport">

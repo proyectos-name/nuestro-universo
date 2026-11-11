@@ -397,34 +397,64 @@ img {
   align-items: center;
 }
 
-.cosmic-input {
+.date-input-shell {
   width: 100%;
   min-height: 50px;
-  padding: 12px 48px 12px 18px;
+  padding: 0 46px 0 18px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(5, 8, 22, 0.72);
-  color: var(--text-primary);
-  font-size: 1rem;
-  letter-spacing: 0.14em;
-  text-align: center;
-  outline: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  cursor: text;
   transition: border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
-.cosmic-input::placeholder {
-  color: var(--text-muted);
-  letter-spacing: 0.12em;
-}
-
-.cosmic-input:focus {
+.date-input-shell:focus-within {
   border-color: var(--accent-cyan);
   box-shadow: 0 0 0 3px rgba(103, 212, 255, 0.18);
 }
 
-.cosmic-input.is-invalid {
+.date-input-shell.is-invalid {
   border-color: var(--accent-rose);
   box-shadow: 0 0 0 3px rgba(255, 94, 138, 0.2);
+}
+
+.date-segment {
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 1rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.1em;
+  text-align: center;
+  outline: none;
+  padding: 10px 2px;
+}
+
+.date-segment::placeholder {
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+}
+
+.date-segment--short {
+  width: 2.9ch;
+  min-width: 34px;
+}
+
+.date-segment--year {
+  width: 5.1ch;
+  min-width: 56px;
+}
+
+.date-sep {
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  font-weight: 600;
+  user-select: none;
+  pointer-events: none;
 }
 
 .input-toggle-btn {
@@ -506,11 +536,21 @@ img {
 }
 
 .welcome-copy {
-  margin: 14px auto 26px;
+  margin: 16px auto 28px;
   max-width: 38ch;
-  font-size: 0.98rem;
-  line-height: 1.68;
-  color: var(--text-secondary);
+  font-family: var(--font-serif);
+  font-size: clamp(1rem, 3.9vw, 1.12rem);
+  line-height: 1.76;
+  color: #e9eeff;
+  text-align: center;
+}
+
+.stage--welcome.is-active .welcome-copy {
+  animation: welcomeFadeIn 0.85s ease 0.18s both;
+}
+
+.stage--welcome.is-active #welcome-continue-btn {
+  animation: welcomeFadeIn 0.85s ease 0.36s both;
 }
 
 /* =========================================================

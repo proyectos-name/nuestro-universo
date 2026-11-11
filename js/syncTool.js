@@ -31,6 +31,7 @@ class ManualLrcSyncTool {
     this.resetTimesBtn = document.getElementById('tool-reset-times-btn');
     this.exportDownloadBtn = document.getElementById('tool-download-btn');
     this.exportCopyBtn = document.getElementById('tool-copy-btn');
+    this.exportValidationEl = document.getElementById('tool-export-validation');
     this.statusBanner = document.getElementById('tool-status-banner');
     this.previewActiveEl = document.getElementById('tool-preview-active');
     this.linesContainer = document.getElementById('tool-lines-list');
@@ -347,27 +348,79 @@ class ManualLrcSyncTool {
   refreshExportPreview() {
     const lrcText = this.buildLrcOutput();
     this.outputPreviewEl.value = lrcText;
+    this.validateExportReadiness();
+  }
+
+  validateExportReadiness() {
+    if (!this.items.length) {
+      this.exportValidationEl.dataset.ready = 'false';
+      this.exportValidationEl.textContent = 'No hay versos cargados.';
+      return { ready: false, message: 'No hay versos cargados para exportar.' };
+    }
+
+    const missingIndices = [];
+    const outOfOrderIndices = [];
+    let prevTime = -1;
+
+    this.items.forEach((item, idx) => {
+      if (item.time === null || !Number.isFinite(item.time)) {
+        missingIndices.push(idx);
+        return;
+      }
+      if (item.time < prevTime) {
+        outOfOrderIndices.push(idx);
+      }
+      prevTime = item.time;
+    });
+
+    if (missingIndices.length > 0) {
+      const sample = missingIndices
+        .slice(0, 5)
+        .map((i) => i + 1)
+        .join(', ');
+      const suffix = missingIndices.length > 5 ? '...' : '';
+      const msg = `Faltan ${missingIndices.length} de ${this.items.length} frases por marcar (líneas: ${sample}${suffix}).`;
+      this.exportValidationEl.dataset.ready = 'false';
+      this.exportValidationEl.textContent = msg;
+      return { ready: false, message: msg, firstMissingIndex: missingIndices[0] };
+    }
+
+    if (outOfOrderIndices.length > 0) {
+      const lines = outOfOrderIndices.map((i) => i + 1).join(', ');
+      const msg = `Hay tiempos menores al verso anterior en línea(s): ${lines}. Corrige antes de exportar.`;
+      this.exportValidationEl.dataset.ready = 'false';
+      this.exportValidationEl.textContent = msg;
+      return { ready: false, message: msg, firstMissingIndex: outOfOrderIndices[0] };
+    }
+
+    this.exportValidationEl.dataset.ready = 'true';
+    this.exportValidationEl.textContent = `${this.items.length} / ${this.items.length} frases marcadas en orden — LRC definitivo listo ✓`;
+    return { ready: true, message: 'OK' };
   }
 
   buildLrcOutput() {
-    const sorted = [...this.items]
-      .filter((item) => item.time !== null)
-      .sort((a, b) => a.time - b.time);
+    const markedInOrder = this.items.filter((item) => item.time !== null);
 
     return serializeLrc({
       title: APP_CONFIG.music.defaultTitle,
       artist: APP_CONFIG.music.defaultArtist,
-      lines: sorted
+      lines: markedInOrder
     });
   }
 
   downloadLrc() {
-    const lrcText = this.buildLrcOutput();
-    if (!lrcText.includes('[')) {
-      this.setStatus('Marca al menos un verso antes de exportar.', 'error');
+    const check = this.validateExportReadiness();
+    if (!check.ready) {
+      this.setStatus(check.message, 'error');
+      if (typeof check.firstMissingIndex === 'number') {
+        this.cursorIndex = check.firstMissingIndex;
+        this.renderLines();
+        this.scrollCursorIntoView();
+      }
       return;
     }
 
+    const lrcText = this.buildLrcOutput();
     const blob = new Blob([lrcText], { type: 'text/plain;charset=utf-8' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -377,14 +430,28 @@ class ManualLrcSyncTool {
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
-    this.setStatus('Archivo letra.lrc descargado. Reemplaza el contenido en la carpeta letra/.', 'info');
+    this.setStatus(
+      'Archivo LRC definitivo descargado (36/36 frases). Reemplaza letra/letra.lrc.txt con este contenido.',
+      'info'
+    );
   }
 
   async copyLrc() {
+    const check = this.validateExportReadiness();
+    if (!check.ready) {
+      this.setStatus(check.message, 'error');
+      if (typeof check.firstMissingIndex === 'number') {
+        this.cursorIndex = check.firstMissingIndex;
+        this.renderLines();
+        this.scrollCursorIntoView();
+      }
+      return;
+    }
+
     const lrcText = this.buildLrcOutput();
     try {
       await navigator.clipboard.writeText(lrcText);
-      this.setStatus('Contenido LRC copiado al portapapeles.', 'info');
+      this.setStatus('LRC definitivo copiado al portapapeles (36/36 frases).', 'info');
     } catch {
       this.outputPreviewEl.select();
       this.setStatus('Selecciona y copia el texto del recuadro LRC manualmente.', 'info');

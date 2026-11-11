@@ -311,9 +311,26 @@ textarea {
 }
 
 .export-help {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   font-size: 0.85rem;
   color: var(--muted);
+}
+
+.export-validation {
+  margin: 0 0 12px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #ffd3df;
+  background: rgba(255, 94, 138, 0.14);
+  border: 1px solid rgba(255, 94, 138, 0.34);
+}
+
+.export-validation[data-ready='true'] {
+  color: #b8ffdf;
+  background: rgba(46, 204, 138, 0.14);
+  border-color: rgba(46, 204, 138, 0.36);
 }
 
 .lrc-output {

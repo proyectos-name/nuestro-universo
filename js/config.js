@@ -11,9 +11,10 @@ export const APP_CONFIG = {
     badge: 'PORTAL DEL MULTIVERSO',
     title: 'Nuestro Universo',
     subtitle: 'Ingresa nuestra fecha especial para abrir el portal hacia nuestra historia.',
-    placeholder: 'DD.MM.AAAA',
+    placeholder: 'DD / MM / AAAA',
     buttonText: 'Abrir portal',
     errorEmpty: 'Escribe nuestra fecha especial para continuar.',
+    errorIncomplete: 'Completa el día, mes y año para abrir nuestro portal.',
     errorInvalid: 'Esa fecha aún no abre nuestro portal... intenta con nuestro día especial.'
   },
 
@@ -22,7 +23,7 @@ export const APP_CONFIG = {
     badge: 'CONEXIÓN ESTABLECIDA',
     title: 'Bienvenida a nuestro universo',
     message:
-      'Entre infinitas galaxias y líneas temporales, mi lugar favorito siempre será el mismo: a tu lado. Ponte cómoda, sube el volumen y deja que esta canción hable por mí.',
+      'A veces hay canciones que dicen mucho sin necesidad de explicar demasiado. Esta me hizo pensar en ti y en lo bonito que es coincidir con alguien que se vuelve especial en tu vida. 🤍',
     buttonText: 'Escuchar nuestra canción'
   },
 

@@ -51,20 +51,53 @@
             </p>
 
             <form id="login-form" class="login-form" novalidate>
-              <label for="password-input" class="sr-only">
-                Fecha especial (contraseña)
-              </label>
+              <span id="date-group-label" class="sr-only">
+                Fecha especial (DD / MM / AAAA)
+              </span>
               <div class="input-group">
-                <input
-                  id="password-input"
-                  class="cosmic-input"
-                  type="password"
-                  inputmode="decimal"
-                  autocomplete="off"
-                  spellcheck="false"
-                  placeholder="DD.MM.AAAA"
+                <div
+                  id="date-input-shell"
+                  class="date-input-shell"
+                  role="group"
+                  aria-labelledby="date-group-label"
                   aria-describedby="login-error"
-                />
+                >
+                  <input
+                    id="date-day"
+                    class="date-segment date-segment--short"
+                    type="password"
+                    inputmode="numeric"
+                    maxlength="2"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="DD"
+                    aria-label="Día"
+                  />
+                  <span class="date-sep" aria-hidden="true">/</span>
+                  <input
+                    id="date-month"
+                    class="date-segment date-segment--short"
+                    type="password"
+                    inputmode="numeric"
+                    maxlength="2"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="MM"
+                    aria-label="Mes"
+                  />
+                  <span class="date-sep" aria-hidden="true">/</span>
+                  <input
+                    id="date-year"
+                    class="date-segment date-segment--year"
+                    type="password"
+                    inputmode="numeric"
+                    maxlength="4"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="AAAA"
+                    aria-label="Año"
+                  />
+                </div>
                 <button
                   id="toggle-password-btn"
                   class="input-toggle-btn"
@@ -109,7 +142,7 @@
               Bienvenida a nuestro universo
             </h2>
             <p id="welcome-message" class="welcome-copy">
-              Entre infinitas galaxias y líneas temporales, mi lugar favorito siempre será el mismo: a tu lado.
+              A veces hay canciones que dicen mucho sin necesidad de explicar demasiado. Esta me hizo pensar en ti y en lo bonito que es coincidir con alguien que se vuelve especial en tu vida. 🤍
             </p>
 
             <button id="welcome-continue-btn" class="btn-primary" type="button">
